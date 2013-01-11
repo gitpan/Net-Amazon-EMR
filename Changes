@@ -3,3 +3,9 @@ Revision history for Net-Amazon-EMR
 0.10    2012-12-19
         First version
 
+0.11    2013-01-03
+        rt.cpan.org #82345; fixed undeclared dependencies
+
+0.12    2013-01-10
+        Fixed BootstrapActionConfig
+        rt.cpan.org #82617; expanded documentation

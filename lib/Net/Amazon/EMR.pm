@@ -41,19 +41,19 @@ use Net::Amazon::EMR::StepConfig;
 use Net::Amazon::EMR::StepDetail;
 use Net::Amazon::EMR::StepExecutionStatusDetail;
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 
-has 'AWSAccessKeyId'	=> ( is => 'ro', isa => 'Str', required => 1 );
-has 'SecretAccessKey'	=> ( is => 'ro', isa => 'Str', required => 1 );
-has 'signature_version'	=> ( is => 'ro', isa => 'Int', default => 2 );
-has 'version'		=> ( is => 'ro', isa => 'Str', required => 1, default => '2009-03-31' );
-has 'ssl'		=> ( is => 'ro', isa => 'Bool', required => 1, default => 1 );
-has 'base_url'			=> ( 
-	is			=> 'ro', 
-	isa			=> 'Str', 
-	default		=> sub {
-		return 'http' . ($_[0]->ssl ? 's' : '') . '://elasticmapreduce.amazonaws.com';
-	}
+has 'AWSAccessKeyId'    => ( is => 'ro', isa => 'Str', required => 1 );
+has 'SecretAccessKey'   => ( is => 'ro', isa => 'Str', required => 1 );
+has 'signature_version' => ( is => 'ro', isa => 'Int', default => 2 );
+has 'version'           => ( is => 'ro', isa => 'Str', required => 1, default => '2009-03-31' );
+has 'ssl'               => ( is => 'ro', isa => 'Bool', required => 1, default => 1 );
+has 'base_url'                  => ( 
+        is                      => 'ro', 
+        isa                     => 'Str', 
+        default         => sub {
+                return 'http' . ($_[0]->ssl ? 's' : '') . '://elasticmapreduce.amazonaws.com';
+        }
 );
 
 after 'BUILDARGS' => sub {
@@ -67,24 +67,24 @@ sub timestamp {
 }
     
 sub _hashit {
-	my $self								= shift;
-	my ($secret_access_key, $query_string)	= @_;
-	
-	return encode_base64(hmac_sha256($query_string, $secret_access_key), '');
+        my $self                                                                = shift;
+        my ($secret_access_key, $query_string)  = @_;
+        
+        return encode_base64(hmac_sha256($query_string, $secret_access_key), '');
 }
 
 sub _sign {
-    my $self						= shift;
-    my %args						= @_;
-    my $action						= delete $args{Action};
-    my %sign_hash					= %args;
-    my $timestamp					= $self->timestamp;
+    my $self                                            = shift;
+    my %args                                            = @_;
+    my $action                                          = delete $args{Action};
+    my %sign_hash                                       = %args;
+    my $timestamp                                       = $self->timestamp;
 
-    $sign_hash{AWSAccessKeyId}		= $self->AWSAccessKeyId;
-    $sign_hash{Action}				= $action;
-    $sign_hash{Timestamp}			= $timestamp;
-    $sign_hash{Version}				= $self->version;
-    $sign_hash{SignatureVersion}	= $self->signature_version;
+    $sign_hash{AWSAccessKeyId}          = $self->AWSAccessKeyId;
+    $sign_hash{Action}                          = $action;
+    $sign_hash{Timestamp}                       = $timestamp;
+    $sign_hash{Version}                         = $self->version;
+    $sign_hash{SignatureVersion}        = $self->signature_version;
     $sign_hash{SignatureMethod}     = "HmacSHA256";
 
     my $sign_this = "POST\n";
@@ -105,23 +105,23 @@ sub _sign {
     my $encoded = $self->_hashit($self->SecretAccessKey, $sign_this);
 
     my %params = (
-        Action				=> $action,
-        SignatureVersion	=> $self->signature_version,
+        Action                          => $action,
+        SignatureVersion        => $self->signature_version,
         SignatureMethod     => "HmacSHA256",
-        AWSAccessKeyId		=> $self->AWSAccessKeyId,
-        Timestamp			=> $timestamp,
-        Version				=> $self->version,
-        Signature			=> $encoded,
+        AWSAccessKeyId          => $self->AWSAccessKeyId,
+        Timestamp                       => $timestamp,
+        Version                         => $self->version,
+        Signature                       => $encoded,
         %args
-	);
+        );
 
-    my $ur	= $uri->as_string();
+    my $ur      = $uri->as_string();
     $self->log->debug("GENERATED QUERY URL: $ur");
-    my $ua	= LWP::UserAgent->new();
+    my $ua      = LWP::UserAgent->new();
     $ua->env_proxy;
-    my $res	= $ua->post($ur, \%params);
+    my $res     = $ua->post($ur, \%params);
     # We should force <item> elements to be in an array
-    my $xs	= XML::Simple->new(
+    my $xs      = XML::Simple->new(
         ForceArray => qr/(?:item|Errors)/i, # Always want item elements unpacked to arrays
         KeyAttr => '', # Turn off folding for 'id', 'name', 'key' elements
         SuppressEmpty => undef, # Turn empty values into explicit undefs
@@ -226,14 +226,14 @@ sub add_job_flow_steps {
 
 sub describe_job_flows {
     my ($self, %args) = validated_hash( \@_, 
-        CreatedAfter	=> { isa => 'Net::Amazon::EMR::Type::DateTime', 
+        CreatedAfter    => { isa => 'Net::Amazon::EMR::Type::DateTime', 
                              optional => 1, 
                              coerce => 1 },
-        CreatedBefore	=> { isa => 'Net::Amazon::EMR::Type::DateTime', 
+        CreatedBefore   => { isa => 'Net::Amazon::EMR::Type::DateTime', 
                              optional => 1, 
                              coerce => 1 },
-        JobFlowIds	=> { isa => 'ArrayRef', optional => 1 },
-        JobFlowStates	=> { isa => 'ArrayRef[Str]', optional => 1 },
+        JobFlowIds      => { isa => 'ArrayRef', optional => 1 },
+        JobFlowStates   => { isa => 'ArrayRef[Str]', optional => 1 },
                          );
     my %flat_args;
     _to_flat_args(\%args, \%flat_args);
@@ -261,15 +261,15 @@ sub modify_instance_groups {
 
 sub run_job_flow {
     my ($self, %args) = validated_hash( \@_, 
-        AdditionalInfo	=> { isa => 'Str', optional => 1 },
-        AmiVersion	=> { isa => 'Str', optional => 1 },
+        AdditionalInfo  => { isa => 'Str', optional => 1 },
+        AmiVersion      => { isa => 'Str', optional => 1 },
         BootstrapActions => { isa => 'Net::Amazon::EMR::Type::ArrayRefofBootstrapActionConfig | Undef', 
                               optional => 1, 
                               coerce => 1 },
-        Instances	=> { isa => 'Net::Amazon::EMR::Type::JobFlowInstancesConfig', coerce => 1 },
-        LogUri	=> { isa => 'Str | Undef', optional => 1 },
-        Name	=> { isa => 'Str' },
-        Steps	=> { isa => 'Net::Amazon::EMR::Type::ArrayRefofStepConfig', optional => 1, coerce => 1 },
+        Instances       => { isa => 'Net::Amazon::EMR::Type::JobFlowInstancesConfig', coerce => 1 },
+        LogUri  => { isa => 'Str | Undef', optional => 1 },
+        Name    => { isa => 'Str' },
+        Steps   => { isa => 'Net::Amazon::EMR::Type::ArrayRefofStepConfig', optional => 1, coerce => 1 },
         SupportedProducts => { isa => 'ArrayRef[Str] | Undef', optional => 1 },
         VisibleToAllUsers => { isa => 'Net::Amazon::EMR::Type::Bool', optional => 1 },
                                         );
@@ -287,7 +287,7 @@ sub run_job_flow {
 
 sub set_termination_protection {
     my ($self, %args) = validated_hash( \@_, 
-                                        JobFlowIds	=> { isa => 'ArrayRef' },
+                                        JobFlowIds      => { isa => 'ArrayRef' },
                                         TerminationProtected => { isa => 'Net::Amazon::EMR::Type::Bool', 
                                                                   coerce => 1 },
         );
@@ -302,7 +302,7 @@ sub set_termination_protection {
 
 sub set_visible_to_all_users {
     my ($self, %args) = validated_hash( \@_, 
-        JobFlowIds	=> { isa => 'ArrayRef' },
+        JobFlowIds      => { isa => 'ArrayRef' },
         VisibleToAllUsers => { isa => 'Net::Amazon::EMR::Type::Bool', 
                                coerce => 1 },
         );
@@ -317,7 +317,7 @@ sub set_visible_to_all_users {
 
 sub terminate_job_flows {
     my ($self, %args) = validated_hash( \@_, 
-        JobFlowIds	=> { isa => 'ArrayRef' },
+        JobFlowIds      => { isa => 'ArrayRef' },
                          );
     my %flat_args;
     _to_flat_args(\%args, \%flat_args);
@@ -345,6 +345,7 @@ Net::Amazon::EMR - API for Amazon's Elastic Map-Reduce service
     ssl             => 1,
     );
 
+  # start a job flow
   my $id = $emr->run_job_flow(Name => "Example Job",
                               Instances => {
                                   Ec2KeyName => 'myKeyId',
@@ -354,7 +355,22 @@ Net::Amazon::EMR - API for Amazon's Elastic Map-Reduce service
                                   Placement => { AvailabilityZone => 'us-east-1a' },
                                   SlaveInstanceType => 'm1.small',
                               },
-    );
+                              BootstrapActions => [{
+                                Name => 'Bootstrap-configure',
+                                ScriptBootstrapAction => {
+                                  Path => 's3://elasticmapreduce/bootstrap-actions/configure-hadoop',
+                                  Args => [ '-m', 'mapred.compress.map.output=true' ],
+                                },
+                              }],
+                              Steps => [{
+                                ActionOnFailure => 'TERMINATE_JOB_FLOWS',
+                                Name => "Set up debugging",
+                                HadoopJarStep => { 
+                                           Jar => 's3://us-east-1.elasticmapreduce/libs/script-runner/script-runner.jar',
+                                           Args => [ 's3://us-east-1.elasticmapreduce/libs/state-pusher/0.1/fetch' ],
+                                           },
+                              }],
+                            );
 
   print "Job flow id = " . $id->JobFlowId . "\n";
 
@@ -377,6 +393,21 @@ Net::Amazon::EMR - API for Amazon's Elastic Map-Reduce service
   $emr->set_visible_to_all_users(JobFlowIds => $id, VisibleToAllUsers => 1);
   $emr->set_termination_protection(JobFlowIds => [ $id->JobFlowId ], TerminationProtected => 'false');
 
+  # Add map-reduce steps and execute
+  $emr->add_job_flow_steps(JobFlowId => $job_id,
+      [{
+            ActionOnFailure => 'CANCEL_AND_WAIT',
+            Name => "Example",
+            HadoopJarStep => { 
+              Jar => '/home/hadoop/contrib/streaming/hadoop-streaming.jar',
+              Args => [ '-input', 's3://my-bucket/my-input',
+                        '-output', 's3://my-bucket/my-output',
+                        '-mapper', '/path/to/mapper-script',
+                        '-reducer', '/path/to/reducer-script',
+                      ],
+              Properties => [ { Key => 'reduce_tasks_speculative_execution', Value => 'false' } ],
+              },
+        }, ... ]);
 
 =head1 DESCRIPTION
 
@@ -472,11 +503,107 @@ If an error occurs in any of the methods, the error will be logged and an L<Exce
 
 =head1 ERROR LOGGING
 
+=head2 Quick Start
 Logging uses Log::Log4perl.  You should initialise Log::Log4perl at the beginning of your program to suit your needs.  The simplest way to enable debugging output to STDERR is to call
 
   use Log::Log4perl qw/:easy/;
   Log::Log4perl->easy_init($DEBUG);
 
+=head2 Advanced Logging Configuration
+
+L<Log::Log4perl> provides great flexibility and there are many ways to set it up.  A favourite of my own is to use L<Config::General> format to specify all configuration parameters including logging, and to initialise in the following manner:
+
+  use Config::General qw/ParseConfig/;
+  
+  my %opts = ParseConfig(-ConfigFile => 'my.conf',
+                         -SplitPolicy => 'equalsign',
+                         -UTF8 => 1);
+  ... 
+   
+  unless (Log::Log4perl->initialized) {
+      if ($opts{log4perl}) {
+            Log::Log4perl::init($opts{log4perl});
+      }
+      else {
+         Log::Log4perl->easy_init();
+      }
+  }
+   
+And a typical configuration in L<Config::General> format might look like this:
+
+  <log4perl>
+    log4perl.rootLogger = DEBUG, Screen, Logfile
+    log4perl.appender.Logfile = Log::Log4perl::Appender::File
+    log4perl.appender.Logfile.filename = debug.log
+    log4perl.appender.Logfile.layout = Log::Log4perl::Layout::PatternLayout
+    log4perl.appender.Logfile.layout.ConversionPattern = "%d %-5p %c - %m%n"
+    log4perl.appender.Screen = Log::Log4perl::Appender::ScreenColoredLevels
+    log4perl.appender.Screen.stderr = 1
+    log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+    log4perl.appender.Screen.layout.ConversionPattern = "[%d] [%p] %c %m%n"
+  </log4perl>
+
+=head2 Logging Verbosity
+ 
+At DEBUG level, the output can be very lengthy.  To see only important messages for Net::Amazon::EMR whilst debugging other parts of your code, you could raise the threshold just for Net::Amazon::EMR by adding the following to your Log4perl configuration: 
+
+  log4perl.logger.Net.Amazon.EMR = WARN
+
+=head1 Map-Reduce Notes
+
+This is somewhat beyond the scope of the documentation for using Net::Amazon::EMR.  Nevertheless, here are a few notes about using EMR with Perl.
+
+=head2 Installing Perl Libraries
+
+Undoubtedly, to run any serious processing, you will need to install additional libraries on the map-reduce servers.  A practical way to do this is to pre-configure all of the libraries using local::lib and use a bootstrap task to install them when the servers boot, using steps similar to the following:
+
+=over 4
+
+=item * Start an interactive EMR job on a single instance using the same machine architecture (e.g. m1.large) that you plan to use for running your jobs.
+
+=item * ssh to instance
+
+=item * setup CPAN, get L<local::lib> and install
+
+=item * setup .bashrc to contain the environment variables required to use L<local::lib>
+
+=item * install all the other modules you need via cpan
+
+=item * clean up files from .cpan that you don't need, such as build and source directories
+
+=item * Create a tar file, e.g. tar cfz local-perl5.tar.gz perl5 .cpan .bashrc
+
+=item * Copy the tar file to your bucket on S3.
+
+=item * Set up a bootstrap script to copy back the tar file from S3 and untar it into the hadoop home directory, e.g.
+
+    #!/bin/bash
+    set -e
+    bucket=mybucketname
+    tarfile=local-perl5.tar.gz
+    arch=large
+    cd $HOME
+    hadoop fs -get s3://$bucket/$arch/$tarfile .
+    tar xfz $tarfile
+
+=item * Put the bootstrap script on S3 and use it when creating a new job flow.
+
+=back
+
+=head2 Mappers and Reducers
+
+Assuming the reader is familiar with the basic principles of map-reduce, in terms of implementation in Perl with hadoop-streaming.jar, a mapper/reducer is simply a script that reads from STDIN and writes to STDOUT, typically line by line using a tab-separated key and value pair on each line.  So the main loop of any mapper/reducer script is usually of the form:
+
+    while (my $line = <>) {
+      chomp $line;
+      my ($key, $value) = split(/\t/, @line);
+      ... do something with key and value
+      print "$newkey\t$newvalue\n";
+    }
+
+Scripts can be uploaded to S3 using the web interface, or placed in the bootstrap bundle described above, or uploaded to the master instance using scp and distributed using the hadoop-streaming.jar -file option, or no doubt by many other mechanisms.  If due care is taken with quoting, a script can even be specified using the -mapper and -reducer options directly; for example:
+
+  Args => [ '-mapper', '"perl -e MyClass->new->mapper"', ... ]
 
 =head1 AUTHOR
 

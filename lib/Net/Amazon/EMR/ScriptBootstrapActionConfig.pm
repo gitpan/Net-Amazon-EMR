@@ -3,7 +3,7 @@ use Moose;
 with 'Net::Amazon::EMR::Role::AttrHash';
 
 has 'Args' => ( is => 'ro', 
-                isa => 'Net::Amazon::EMR::Type::ArrayRefofStr',
+                isa => 'Net::Amazon::EMR::Type::ArrayRefofStr | Undef',
                 coerce => 1);
 
 has 'Path' => ( is => 'ro', 

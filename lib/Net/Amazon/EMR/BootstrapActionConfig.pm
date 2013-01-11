@@ -6,7 +6,7 @@ use Net::Amazon::EMR::Coercions;
 has 'Name' => ( is => 'ro', 
                 isa => 'Str' );
 
-has 'ScriptBootstrapActionConfig' => ( is => 'ro',
+has 'ScriptBootstrapAction' => ( is => 'ro',
                                       isa => 'Net::Amazon::EMR::Type::ScriptBootstrapActionConfig',
                                       coerce => 1,
 );

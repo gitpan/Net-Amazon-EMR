@@ -36,22 +36,27 @@
             "DateTime" : "0",
             "DateTime::Format::ISO8601" : "0",
             "Digest::SHA" : "0",
+            "Exception::Class" : "0",
             "LWP::Protocol::https" : "0",
             "LWP::UserAgent" : "0",
+            "Log::Log4perl" : "0",
             "MIME::Base64" : "0",
             "Moose" : "0.38",
             "Moose::Role" : "0",
             "Moose::Util::TypeConstraints" : "0",
+            "MooseX::Log::Log4perl" : "0",
+            "MooseX::Params::Validate" : "0",
             "Net::Amazon::EC2" : "0.22",
             "POSIX" : "0",
             "Params::Validate" : "0",
             "Test::More" : "0",
             "URI" : "0",
             "URI::Escape" : "0",
-            "XML::Simple" : "2.18"
+            "XML::Simple" : "2.18",
+            "blib" : "0"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "0.10"
+   "version" : "0.12"
 }

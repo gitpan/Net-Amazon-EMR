@@ -36,7 +36,7 @@ has 'NormalizedInstanceHours' => ( is => 'ro',
                                    isa => 'Int' );
 
 has 'Placement' => ( is => 'ro', 
-                     isa => 'Net::Amazon::EMR::Type::PlacementType',
+                     isa => 'Net::Amazon::EMR::Type::PlacementType | Undef',
                      coerce => 1  );
 
 has 'SlaveInstanceType' => ( is => 'ro', 

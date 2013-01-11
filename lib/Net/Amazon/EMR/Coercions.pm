@@ -32,7 +32,7 @@ StepExecutionStatusDetail
 
         eval qq{ coerce 'Net::Amazon::EMR::Type::ArrayRefof$class'
         => from 'HashRef'
-        => via { my \$s = \$_->{member}; [ map { Net::Amazon::EMR::$class->new(\$_) } \@{ref(\$s) eq 'ARRAY' ? \$s : [ \$s ] } ] };
+        => via { my \$s = \$_->{member} || \$_; [ map { Net::Amazon::EMR::$class->new(\$_) } \@{ref(\$s) eq 'ARRAY' ? \$s : [ \$s ] } ] };
 };
 
         eval qq{ coerce 'Net::Amazon::EMR::Type::ArrayRefof$class'
