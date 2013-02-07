@@ -17,6 +17,7 @@ WriteMakefile(
         'Data::Dumper'                 => 0,
         'DateTime'                     => 0,
         'DateTime::Format::ISO8601'    => 0,
+        'DateTime::Format::Builder'    => 0,
         'Digest::SHA'                  => 0,
         'Exception::Class'             => 0,
         'LWP::Protocol::https'         => 0,

@@ -16,7 +16,7 @@ has 'InstanceCount' => ( is => 'ro',
                          isa => 'Int' );
 
 has 'InstanceGroups' => ( is => 'ro', 
-                          isa => 'Net::Amazon::EMR::Type::ArrayRefofInstanceGroupDetail',
+                          isa => 'Net::Amazon::EMR::Type::ArrayRefofInstanceGroupConfig',
                           coerce => 1 );
 
 has 'KeepJobFlowAliveWhenNoSteps' => ( is => 'ro', 

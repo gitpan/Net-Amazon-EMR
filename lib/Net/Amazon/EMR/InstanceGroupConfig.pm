@@ -7,7 +7,7 @@ has 'BidPrice' => ( is => 'ro',
                     isa => 'Str' );
 
 has 'InstanceCount' => ( is => 'ro', 
-                                isa => 'Int' );
+                         isa => 'Int' );
 
 has 'InstanceRole' => ( is => 'ro', 
                         isa => 'Str' );

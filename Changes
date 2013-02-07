@@ -9,3 +9,9 @@ Revision history for Net-Amazon-EMR
 0.12    2013-01-10
         Fixed BootstrapActionConfig
         rt.cpan.org #82617; expanded documentation
+
+0.13    2013-01-13
+        Additional dependencies
+
+0.14    2013-02-07
+        Fixed specification of JobFlowInstancesConfig

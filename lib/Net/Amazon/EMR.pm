@@ -41,7 +41,7 @@ use Net::Amazon::EMR::StepConfig;
 use Net::Amazon::EMR::StepDetail;
 use Net::Amazon::EMR::StepExecutionStatusDetail;
 
-our $VERSION = '0.12';
+our $VERSION = '0.14';
 
 has 'AWSAccessKeyId'    => ( is => 'ro', isa => 'Str', required => 1 );
 has 'SecretAccessKey'   => ( is => 'ro', isa => 'Str', required => 1 );
