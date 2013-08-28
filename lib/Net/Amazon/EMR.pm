@@ -41,7 +41,7 @@ use Net::Amazon::EMR::StepConfig;
 use Net::Amazon::EMR::StepDetail;
 use Net::Amazon::EMR::StepExecutionStatusDetail;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 has 'AWSAccessKeyId'    => ( is => 'ro', isa => 'Str', required => 1 );
 has 'SecretAccessKey'   => ( is => 'ro', isa => 'Str', required => 1 );
@@ -429,9 +429,22 @@ Your AWS access key.
 
 Your secret key.
 
+=item * base_url (optional)
+
+The base URL for your chosen Amazon region; see L<http://docs.aws.amazon.com/general/latest/gr/rande.html#emr_region>.  If not specified, the default URL is used (which implies region us-east-1).
+
+  my $emr = Net::Amazon::EMR->new(
+      AWSAccessKeyId  => $AWS_ACCESS_KEY_ID,
+      SecretAccessKey => $SECRET_ACCESS_KEY,
+      base_url => 'https://elasticmapreduce.us-west-2.amazonaws.com',
+  );
+
+
 =item * ssl (optional)
 
-If set to a true value, the base_url will use https:// instead of http://. Defaults to true.
+If set to a true value, the default base_url will use https:// instead of http://. Defaults to true.  
+
+The ssl flag is not used if base_url is set explicitly.
 
 =back
 
