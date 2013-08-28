@@ -41,7 +41,7 @@ use Net::Amazon::EMR::StepConfig;
 use Net::Amazon::EMR::StepDetail;
 use Net::Amazon::EMR::StepExecutionStatusDetail;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 has 'AWSAccessKeyId'    => ( is => 'ro', isa => 'Str', required => 1 );
 has 'SecretAccessKey'   => ( is => 'ro', isa => 'Str', required => 1 );
@@ -395,7 +395,7 @@ Net::Amazon::EMR - API for Amazon's Elastic Map-Reduce service
 
   # Add map-reduce steps and execute
   $emr->add_job_flow_steps(JobFlowId => $job_id,
-      [{
+                           Steps => [{
             ActionOnFailure => 'CANCEL_AND_WAIT',
             Name => "Example",
             HadoopJarStep => { 
