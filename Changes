@@ -22,3 +22,5 @@ Revision history for Net-Amazon-EMR
 0.16    2013-08-28
         Minor documentation fix relating to rt.cpan.org #88197
 
+0.17    2013-09-30
+        Added retry loop for 500 errors

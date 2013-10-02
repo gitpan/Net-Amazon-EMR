@@ -41,7 +41,7 @@ use Net::Amazon::EMR::StepConfig;
 use Net::Amazon::EMR::StepDetail;
 use Net::Amazon::EMR::StepExecutionStatusDetail;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 has 'AWSAccessKeyId'    => ( is => 'ro', isa => 'Str', required => 1 );
 has 'SecretAccessKey'   => ( is => 'ro', isa => 'Str', required => 1 );
@@ -55,6 +55,7 @@ has 'base_url'                  => (
                 return 'http' . ($_[0]->ssl ? 's' : '') . '://elasticmapreduce.amazonaws.com';
         }
 );
+has 'max_failures'      => ( is => 'ro', isa => 'Int', default => 5 );
 
 after 'BUILDARGS' => sub {
     unless (Log::Log4perl->initialized) {
@@ -119,24 +120,32 @@ sub _sign {
     $self->log->debug("GENERATED QUERY URL: $ur");
     my $ua      = LWP::UserAgent->new();
     $ua->env_proxy;
-    my $res     = $ua->post($ur, \%params);
+
     # We should force <item> elements to be in an array
     my $xs      = XML::Simple->new(
         ForceArray => qr/(?:item|Errors)/i, # Always want item elements unpacked to arrays
         KeyAttr => '', # Turn off folding for 'id', 'name', 'key' elements
         SuppressEmpty => undef, # Turn empty values into explicit undefs
         );
-    my $xml;
 
-    # Check the result for connectivity problems, if so throw an error
-    if ($res->code >= 500) {
-        $self->log->error("Client internal error for action $action: HTTP POST FAILURE " . $res->status_line);
-        Net::Amazon::EMR::Exception->throw( error => $res->status_line,
-                                            code => 'HTTP POST FAILURE',
-                                            type => 'Client Internal' );
-    }
-    else {
-        $xml = $res->content();
+    my $xml;
+    my @failures;
+    while (1) {
+        my $res     = $ua->post($ur, \%params);
+        # Check the result for connectivity problems, if so throw an error
+        if ($res->code >= 500) {
+            $self->log->error("Client internal error for action $action: HTTP POST FAILURE " . $res->status_line);
+            push(@failures, $res->status_line);
+            if (@failures >= $self->max_failures) {
+                Net::Amazon::EMR::Exception->throw( error => join("\n", @failures),
+                                                    code => 'HTTP POST FAILURE',
+                                                    type => 'Client Internal' );
+            }
+        }
+        else {
+            $xml = $res->content();
+            last;
+        }
     }
 
     my $ref = $xs->XMLin($xml);
@@ -445,6 +454,10 @@ The base URL for your chosen Amazon region; see L<http://docs.aws.amazon.com/gen
 If set to a true value, the default base_url will use https:// instead of http://. Defaults to true.  
 
 The ssl flag is not used if base_url is set explicitly.
+
+=item * max_failures (optional)
+
+Number of times to retry if a communications failure occurs, before raising an exception.  Defaults to 5.
 
 =back
 

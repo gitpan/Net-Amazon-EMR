@@ -41,4 +41,4 @@ requires:
   URI::Escape: 0
   XML::Simple: 2.18
   blib: 0
-version: 0.16
+version: 0.17
